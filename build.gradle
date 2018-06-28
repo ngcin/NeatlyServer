@@ -1,0 +1,91 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.7.RELEASE")
+    }
+}
+
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'org.springframework.boot'
+    group = 'com.geeyao'
+    repositories {
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        mavenCentral()
+    }
+
+    ext {
+        lombok = '1.16.18'
+        apachelang = '3.5'
+        apachecollections = '4.1'
+        fastjson = '1.2.33'
+        spring = '4.3.7.RELEASE'
+        springmybatis = '1.2.2'
+        mysql = '5.1.41'
+        mybatis = '3.2.8'
+        druid = '1.0.29'
+    }
+    dependencies {
+        compile "org.projectlombok:lombok:1.16.18"
+        compile "org.apache.commons:commons-lang3:${apachelang}"
+        compile "org.apache.commons:commons-collections4:${apachecollections}"
+        compile "com.alibaba:fastjson:${fastjson}"
+
+        compile "io.netty:netty-all:4.1.13.Final"
+        compile "com.corundumstudio.socketio:netty-socketio:1.7.13"
+        compile "org.springframework:spring-web:${spring}"
+        compile 'org.springframework.boot:spring-boot-starter-data-mongodb:1.5.7.RELEASE'
+        compile 'org.springframework.boot:spring-boot-starter-aop:1.5.7.RELEASE'
+        compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.2.RELEASE'
+//        compile "org.redisson:redisson:2.4.0"
+
+//        compile "org.mybatis:mybatis:${mybatis}"
+//        compile "org.mybatis:mybatis-spring:${springmybatis}"
+//        compile "mysql:mysql-connector-java:${mysql}"
+//        compile "com.alibaba:druid:${druid}"
+        testCompile "junit:junit:4.12"
+        testCompile "org.springframework:spring-test:${spring}"
+        testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.7.RELEASE'
+
+    }
+}
+
+configure(subprojects.findAll { it.name != 'common' }) {
+    dependencies {
+        compile project(':common')
+    }
+}
+
+project(':management') {
+    dependencies {
+        compile project(':common'), project(":games:neatly")
+    }
+}
+
+project(':app') {
+    dependencies {
+        compile project(':common'), project(":games:neatly"),project(":management")
+    }
+
+    bootRepackage {
+        mainClass = 'com.geeyao.App'
+        executable = true
+    }
+
+    task appjars(type: Sync, dependsOn: bootRepackage) {
+//        from configurations.runtime
+        from jar.outputs
+        into "../out"
+    }
+}
+
+
+
+

@@ -1,0 +1,9 @@
+.idea/
+node_modules/
+coverage/
+*.iml
+build/
+out/
+target/
+.gradle/
+logs/
